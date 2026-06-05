@@ -36,19 +36,23 @@ export async function pushToDraft(request: PushRequest): Promise<PushResponse> {
  * Test WeChat API connection.
  * @param appId - WeChat AppID
  * @param appSecret - WeChat AppSecret
- * @returns Whether the connection is valid
+ * @returns Object with valid flag and error message
  */
 export async function testConnection(
   appId: string,
   appSecret: string,
-): Promise<boolean> {
+): Promise<{ valid: boolean; message: string }> {
   const response = await fetch(
     `${API_BASE}/check?appId=${encodeURIComponent(appId)}&appSecret=${encodeURIComponent(appSecret)}`,
   );
 
   const result: ApiResponse<CheckConnectionResponse> = await response.json();
 
-  return result.code === 0 && result.data.valid;
+  if (result.code === 0 && result.data.valid) {
+    return { valid: true, message: '连接成功！API 配置有效。' };
+  }
+
+  return { valid: false, message: result.message || '连接失败，请检查 AppID 和 AppSecret 是否正确。' };
 }
 
 /**

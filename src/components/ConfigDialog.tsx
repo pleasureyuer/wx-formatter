@@ -131,10 +131,14 @@ const ConfigDialog: React.FC = () => {
     setError('');
 
     try {
-      const isValid = await testConnection(appId, appSecret);
-      setTestResult(isValid ? 'success' : 'error');
-    } catch {
+      const result = await testConnection(appId, appSecret);
+      setTestResult(result.valid ? 'success' : 'error');
+      if (!result.valid) {
+        setError(result.message);
+      }
+    } catch (err) {
       setTestResult('error');
+      setError(err instanceof Error ? err.message : '连接测试失败');
     } finally {
       setTesting(false);
     }

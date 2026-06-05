@@ -26,6 +26,7 @@ export interface ApiResponse<T> {
 export interface CheckConnectionResponse {
   valid: boolean;
   tokenExpiresIn: number;
+  errorMessage?: string;
 }
 
 /** Upload image response */

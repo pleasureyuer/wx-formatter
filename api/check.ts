@@ -32,6 +32,10 @@ export default async function handler(
 
   try {
     const result = await checkCredentials(appIdStr, appSecretStr);
+    if (!result.valid && result.errorMessage) {
+      res.status(200).json(errorResponse(result.errorMessage, -1));
+      return;
+    }
     res.status(200).json(successResponse(result));
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Connection check failed';

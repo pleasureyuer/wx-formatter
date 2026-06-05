@@ -114,17 +114,19 @@ export async function uploadImage(
 export async function checkCredentials(
   appId: string,
   appSecret: string,
-): Promise<CheckConnectionData> {
+): Promise<CheckConnectionData & { errorMessage?: string }> {
   try {
     const tokenResponse = await getAccessToken(appId, appSecret);
     return {
       valid: true,
       tokenExpiresIn: tokenResponse.expires_in,
     };
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '未知错误';
     return {
       valid: false,
       tokenExpiresIn: 0,
+      errorMessage: message,
     };
   }
 }
