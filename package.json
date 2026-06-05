@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "公众号文章一键排版工具",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -24,8 +27,10 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/dompurify": "^3.0.0",
+    "@types/node": "^25.9.1",
     "@types/react": "^18.3.30",
     "@types/react-dom": "^18.3.7",
+    "@vercel/node": "^5.8.12",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.0",
     "jsdom": "^29.1.1",
