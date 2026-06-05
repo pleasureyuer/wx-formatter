@@ -6,9 +6,11 @@ import { useAppContext } from '../store/AppContext';
 /**
  * Preview - Phone simulation preview area.
  * Renders formatted HTML inside a 375px width phone frame.
+ * Supports multiple preview themes.
  */
 const Preview: React.FC = () => {
   const { state } = useAppContext();
+  const themeClass = `theme-${state.previewTheme || 'wechat'}`;
 
   return (
     <Box
@@ -49,10 +51,10 @@ const Preview: React.FC = () => {
           backgroundColor: '#f0f0f0',
         }}
       >
-        <div className="phone-frame">
+        <div className={`phone-frame ${themeClass}`}>
           <div className="phone-screen">
             <div
-              className="preview-container"
+              className={`preview-container ${themeClass}`}
               dangerouslySetInnerHTML={{ __html: state.formattedHtml }}
             />
           </div>

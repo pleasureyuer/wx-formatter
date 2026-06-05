@@ -4,6 +4,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TemplateSelector from './TemplateSelector';
 import CopyButton from './CopyButton';
+import ThemeSelector from './ThemeSelector';
 import { useAppContext } from '../store/AppContext';
 import { AppActionType } from '../store/actions';
 
@@ -47,8 +48,9 @@ const TopBar: React.FC = () => {
         </Typography>
 
         {/* Template selector */}
-        <Box sx={{ mr: 2 }}>
+        <Box sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
           <TemplateSelector />
+          <ThemeSelector />
         </Box>
 
         {/* Spacer */}

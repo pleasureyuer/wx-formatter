@@ -12,6 +12,7 @@ export const initialAppState: AppState = {
   errorMessage: '',
   isConfigDialogOpen: false,
   isPushDialogOpen: false,
+  previewTheme: 'wechat',
 };
 
 /** Application state reducer */
@@ -55,6 +56,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
             ? action.payload
             : !state.isPushDialogOpen,
       };
+
+    case AppActionType.SET_PREVIEW_THEME:
+      return { ...state, previewTheme: action.payload };
 
     default:
       return state;

@@ -20,6 +20,8 @@ export interface AppState {
   isConfigDialogOpen: boolean;
   /** Push dialog open state */
   isPushDialogOpen: boolean;
+  /** Current preview theme */
+  previewTheme: string;
 }
 
 /** Action types */
@@ -33,6 +35,7 @@ export enum AppActionType {
   SET_ERROR = 'SET_ERROR',
   TOGGLE_CONFIG_DIALOG = 'TOGGLE_CONFIG_DIALOG',
   TOGGLE_PUSH_DIALOG = 'TOGGLE_PUSH_DIALOG',
+  SET_PREVIEW_THEME = 'SET_PREVIEW_THEME',
 }
 
 /** Action payloads */
@@ -45,4 +48,5 @@ export type AppAction =
   | { type: AppActionType.SET_PUSHING; payload: boolean }
   | { type: AppActionType.SET_ERROR; payload: string }
   | { type: AppActionType.TOGGLE_CONFIG_DIALOG; payload?: boolean }
-  | { type: AppActionType.TOGGLE_PUSH_DIALOG; payload?: boolean };
+  | { type: AppActionType.TOGGLE_PUSH_DIALOG; payload?: boolean }
+  | { type: AppActionType.SET_PREVIEW_THEME; payload: string };

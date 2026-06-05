@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, user-scalable=no">
+  <title>公众号排版预览 - 你的领导到底有没有在培养你？</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    
+    /* 手机框架 */
+    .phone-frame {
+      width: 375px;
+      background: #fff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      position: relative;
+    }
+    
+    /* 刘海 */
+    .phone-frame::before {
+      content: '';
+      display: block;
+      width: 150px;
+      height: 28px;
+      background: #000;
+      border-radius: 0 0 18px 18px;
+      margin: 0 auto;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .phone-screen {
+      padding: 0 20px 40px;
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+    
+    /* ===== 公众号头部 ===== */
+    .article-header {
+      padding: 20px 0 16px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 20px;
+    }
+    
+    .account-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    
+    .account-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #07C160, #04A851);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .account-name {
+      font-size: 14px;
+      color: #576b95;
+      font-weight: 500;
+    }
+    
+    .publish-time {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-top: 2px;
+    }
+    
+    /* ===== 文章标题 ===== */
+    .article-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+    
+    /* ===== 文章正文 ===== */
+    .article-body {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #333333;
+      letter-spacing: 0.3px;
+    }
+    
+    .article-body p {
+      margin-bottom: 16px;
+      text-indent: 0;
+    }
+    
+    /* ===== 分割线 ===== */
+    .article-body hr {
+      margin: 28px 0;
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #07C160, transparent);
+    }
+    
+    /* ===== 一级标题（01/02/03） ===== */
+    .article-body h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      padding-left: 12px;
+      border-left: 4px solid #07C160;
+      line-height: 1.4;
+      color: #1a1a1a;
+    }
+    
+    /* ===== 二级标题 ===== */
+    .article-body h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 24px 0 12px;
+      color: #07C160;
+    }
+    
+    /* ===== 加粗强调 ===== */
+    .article-body strong {
+      color: #1a1a1a;
+      font-weight: 700;
+    }
+    
+    /* ===== 引用块 ===== */
+    .article-body blockquote {
+      margin: 16px 0;
+      padding: 12px 16px;
+      background: #f7f7f7;
+      border-left: 3px solid #07C160;
+      color: #666666;
+      font-style: italic;
+      line-height: 1.6;
+      border-radius: 0 4px 4px 0;
+      font-size: 14px;
+    }
+    
+    /* ===== 代码块 ===== */
+    .article-body pre {
+      margin: 16px 0;
+      padding: 16px;
+      background: #f6f8fa;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      border: 1px solid #e1e4e8;
+    }
+    
+    .article-body code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 13px;
+      color: #e01e5a;
+      background: #f6f8fa;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    /* ===== 列表 ===== */
+    .article-body ul {
+      padding-left: 20px;
+      margin: 16px 0;
+    }
+    
+    .article-body li {
+      margin-bottom: 8px;
+      line-height: 1.8;
+      position: relative;
+      padding-left: 8px;
+      list-style: none;
+    }
+    
+    .article-body ul li::before {
+      content: "•";
+      color: #07C160;
+      font-weight: bold;
+      position: absolute;
+      left: -12px;
+    }
+    
+    /* ===== 图片 ===== */
+    .article-body img {
+      max-width: 100% !important;
+      height: auto !important;
+      margin: 16px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* ===== 分隔符号 ===== */
+    .divider-emoji {
+      text-align: center;
+      font-size: 20px;
+      margin: 28px 0;
+      color: #cccccc;
+    }
+    
+    /* ===== 文末提示 ===== */
+    .article-footer {
+      margin-top: 32px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f7f7f7, #eeeeee);
+      border-radius: 12px;
+      text-align: center;
+    }
+    
+    .article-footer .highlight {
+      color: #07C160;
+      font-weight: 700;
+    }
+    
+    /* ===== 滚动条美化 ===== */
+    .phone-screen::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .phone-screen::-webkit-scrollbar-thumb {
+      background: #d0d0d0;
+      border-radius: 2px;
+    }
+    
+    /* ===== 标签 ===== */
+    .tag {
+      display: inline-block;
+      background: #e8f8ef;
+      color: #07C160;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-screen">
+      
+      <!-- 公众号头部 -->
+      <div class="article-header">
+        <div class="account-row">
+          <div class="account-avatar">职</div>
+          <div>
+            <div class="account-name">职场清醒实验室</div>
+            <div class="publish-time">昨天 12:34 · 职场成长</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 文章标题 -->
+      <h1 class="article-title">你的领导到底有没有在培养你？5个信号一眼看穿</h1>
+      
+      <!-- 文章正文 -->
+      <div class="article-body">
+        <p>周二下午，你刚交了一份方案。领导扫了一眼说"放那儿吧"，转头开始刷手机。</p>
+        
+        <p>你回到工位，隔壁小王突然跟你咬耳朵："听说领导上周单独带小李去见了大客户，还让小李列席了下周的规划会。"</p>
+        
+        <p>你心里咯噔一下。然后开始自我安慰："可能是我多想了吧。领导也挺忙的。"</p>
+        
+        <p>但接下来三个月，同样的事情反复出现。好的项目永远绕过你，重要的会议永远没你的名字，领导跟别人聊得热火朝天，到你这就"嗯""好的""放那儿吧"。</p>
+        
+        <p><strong>你不是多想了。你在不在领导的"培养名单"上，信号一直都在。只是你没去看。</strong></p>
+        
+        <hr>
+        
+        <h2>01 信号一：他跟你聊的是"事"，还是"路"？</h2>
+        
+        <p>大多数领导跟下属的对话都在第一层——"这个方案改一下""那个数据再核一次""周五之前交上来。"</p>
+        
+        <p>但在培养一个人的时候，对话会自动切到第二层——"你以后想往哪个方向发展""这个项目为什么让你来负责，因为它能帮你积累XX经验""你的短板在沟通，我给你创造几个锻炼的机会。"</p>
+        
+        <p><strong>区别在于：事是公司的事，路是你的事。</strong></p>
+        
+        <p>一个只把你当工具的领导，他只关心任务有没有被完成。至于你从这个任务里得到了什么、成长了什么，不在他的KPI里。</p>
+        
+        <p>一个在培养你的领导，他会主动把公司的事和你的事对齐——让你干活的同时，也能攒到对你未来有用的东西。</p>
+        
+        <h3>自测题：</h3>
+        <p>回想过去三个月，你的领导有没有主动问过你职业规划？如果有，他问完之后做了什么？如果问了就完了，那叫客套。如果问完之后给你排了对应的项目，那叫培养。</p>
+        
+        <hr>
+        
+        <h2>02 信号二：批评你的时候，是当众还是私下？</h2>
+        
+        <p>这个信号准得可怕。</p>
+        
+        <p>在所有人面前批评你的领导，不是在管你，是在立威。你只是他树立权威的道具。至于你的面子和在团队里的处境，他不在乎。</p>
+        
+        <p>把你叫到会议室、关上门、一句一句跟你说的领导，才是在帮你。他知道这些话不好听，但他不想让别人听到，因为他还要保护你在团队里的信誉。</p>
+        
+        <p><strong>当众的批评是消耗，私下的批评是投资。</strong></p>
+        
+        <p>还有一个细节：批评完之后，他有没有给你"台阶"？</p>
+        
+        <p>真正的培养型批评是有后半句的——"这个事没处理好的原因是XXX，下次你试试这么做"。如果批评完就走了，留你一个人在原地消化情绪，那不叫培养，那叫发泄。</p>
+        
+        <h3>自测题：</h3>
+        <p>你上一次被批评是什么场景？如果是在群里、会上、所有人面前——你不是在被培养。</p>
+        
+        <hr>
+        
+        <h2>03 信号三：好事轮到你，还是你是"兜底的"？</h2>
+        
+        <p>每个团队里都有两种活：<strong>加分项</strong>和<strong>保底项</strong>。</p>
+        
+        <p>加分项是那些做好了能让人眼前一亮的事——跨部门重点项目、跟大领导汇报的机会、能写进述职PPT里的亮点。保底项是那些做不好要挨骂、做好了也没人在意的事——日常运维、应急排查、擦屁股的烂尾项目。</p>
+        
+        <p>一个在培养你的领导，会故意把加分项塞给你。因为他知道你需要曝光、需要积累能讲的故事、需要让更上层的人看到你。</p>
+        
+        <p>一个不在培养你的领导，加分项永远给他最信任的那两个人，保底项发给你。</p>
+        
+        <p><strong>你一直在做的事，到底是"做了能被看见的"，还是"做了只是没出问题"？</strong></p>
+        
+        <h3>自测题：</h3>
+        <p>翻翻你去年干的活，列出来。打钩——哪些是你写进述职PPT里领导会眼前一亮的？哪些你说出来领导甚至想不起来这事是你干的？如果后者更多，你不是在成长，你是在维持。</p>
+        
+        <hr>
+        
+        <h2>04 信号四：他跟你分享信息，还是你跟他汇报信息？</h2>
+        
+        <p>信息的流向，是职场里最诚实的权力地图。</p>
+        
+        <p>如果你是单向输出的那一端——你汇报、他接收——那你只是一个数据源。一旦有更新更快的数据源出现，你随时可替代。</p>
+        
+        <p>但如果你开始从他那里"收到"信息——比如"上面最近在关注XX方向，你可以提前准备一下""下个季度组织架构可能有调整，你别跟别人说"——这才是真正的信号。</p>
+        
+        <p><strong>一个领导开始主动给你信息的时候，他已经把你当自己人了。</strong></p>
+        
+        <p>因为信息的价值在于不对称。他分享给你，意味着他信任你不会出卖他，也意味着他希望你先人一步做好准备。这种信息不会给所有人，甚至不会给大多数人。</p>
+        
+        <h3>自测题：</h3>
+        <p>最近三个月，你的领导有没有主动私下跟你透露过任何你"本不该知道"的信息？如果答案是否定的，你不是他的心腹，你只是他的下属。</p>
+        
+        <hr>
+        
+        <h2>05 信号五：他愿不愿意在你身上"花时间"？</h2>
+        
+        <p>这个信号最容易被忽略，但最硬。</p>
+        
+        <p>时间是一个管理者最稀缺的资源。他把时间花在哪里，他的真实优先级就在哪里。</p>
+        
+        <p>一个愿意每周跟你做一次一对一沟通的领导，和一个三个月才找你聊一次的领导，对你的投资完全是两个量级。</p>
+        
+        <p>但注意——花时间不只是"聊工作"。聊工作是管理，聊职业发展、聊行业趋势、聊他对某个问题的理解和判断、甚至聊他当年的弯路——这才叫培养。他在把自己的认知复制给你，这是一个成本极高但回报周期极长的事。如果他不打算长期用你，他不会干。</p>
+        
+        <h3>自测题：</h3>
+        <p>你和领导的一对一沟通，80%以上的时间在聊什么？如果永远是"进度怎么样了"→"下周一交"→"好的"这个循环，你不是在被培养，你是在被管理。</p>
+        
+        <hr>
+        
+        <h2>06 如果5条全中——恭喜你，你在被纯粹地使用</h2>
+        
+        <p>全中的意思是：他只聊事不聊路、当众批评你、加分项不给你、信息单向上报、一对一永远是过任务。</p>
+        
+        <p>你可以选择继续等。但你得知道你在等什么——你不是在等"被看见的一天"，你是在等他突然有一天良心发现、风格大变、从一个把你当工具的管理者变成一个用心培养你的导师。</p>
+        
+        <p>这个概率有多大，你自己心里清楚。</p>
+        
+        <p>你也可以选择做点什么。不是撕破脸，不是甩辞职信，而是<strong>反客为主</strong>。</p>
+        
+        <p>下次一对一的时候，你主动把对话引向"路"——"领导，我想跟您聊一下我的职业发展，您觉得我现在的短板在哪，接下来半年我应该重点积累什么？"</p>
+        
+        <p>丢出这个问题之后，看他的反应。如果他开始认真跟你讨论，说明他不是不愿意培养你，只是之前没意识到你想被培养。有些领导确实是"你不说他就默认你满意"的类型。</p>
+        
+        <p>但如果他打哈哈过去了——"嗯你挺好的，继续加油"——那你就拿到了你想要的答案。</p>
+        
+        <p>然后把这个答案当闹钟用。</p>
+        
+        <hr>
+        
+        <p>这篇文章不是劝你离职。是劝你<strong>清醒</strong>。</p>
+        
+        <p>有些领导不是坏人，他们只是没把你放在心上。不用恨他们，但也不要骗自己。</p>
+        
+        <p>你每天花8小时以上的地方，如果只是用你的时间，而不用你的潜力——那你也别把自己的未来交进去。</p>
+        
+        <div class="divider-emoji">💡</div>
+        
+        <p style="text-align: center; font-weight: 600; color: #07C160;">今日小作业：对着这5个信号，给你的领导打个分。每条1-5分，满分25分。评论区告诉我你打了多少分——我猜平均分过不了15。</p>
+        
+        <div class="article-footer">
+          <p>📌 <span class="highlight">看完记得点个"在看"</span>，把这篇文章转给你的职场小伙伴～</p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>
