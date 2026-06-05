@@ -1,0 +1,247 @@
+classDiagram
+
+    %% ====== 模板相关 ======
+    class TemplateConfig {
+        +string id
+        +string name
+        +string description
+        +TemplateStyle style
+    }
+
+    class TemplateStyle {
+        +HeadingStyle h1
+        +HeadingStyle h2
+        +HeadingStyle h3
+        +ParagraphStyle paragraph
+        +BlockquoteStyle blockquote
+        +CodeBlockStyle codeBlock
+        +InlineCodeStyle inlineCode
+        +ListStyle list
+        +DividerStyle divider
+        +ImageStyle image
+        +LinkStyle link
+        +RootStyle root
+    }
+
+    class HeadingStyle {
+        +string fontSize
+        +string fontWeight
+        +string color
+        +string marginTop
+        +string marginBottom
+        +string textAlign
+        +string borderBottom
+    }
+
+    class ParagraphStyle {
+        +string fontSize
+        +string lineHeight
+        +string color
+        +string letterSpacing
+        +string marginTop
+        +string marginBottom
+        +string textAlign
+    }
+
+    class BlockquoteStyle {
+        +string borderLeft
+        +string paddingLeft
+        +string color
+        +string bgColor
+        +string fontSize
+    }
+
+    class CodeBlockStyle {
+        +string bgColor
+        +string color
+        +string fontSize
+        +string borderRadius
+        +string padding
+    }
+
+    class InlineCodeStyle {
+        +string bgColor
+        +string color
+        +string padding
+        +string borderRadius
+        +string fontSize
+    }
+
+    class ListStyle {
+        +string color
+        +string fontSize
+        +string lineHeight
+        +string paddingLeft
+    }
+
+    class DividerStyle {
+        +string border
+        +string margin
+    }
+
+    class ImageStyle {
+        +string maxWidth
+        +string borderRadius
+        +string margin
+    }
+
+    class LinkStyle {
+        +string color
+        +string textDecoration
+    }
+
+    class RootStyle {
+        +string bgColor
+        +string padding
+        +string fontFamily
+    }
+
+    TemplateConfig --> TemplateStyle : style
+    TemplateStyle --> HeadingStyle : h1, h2, h3
+    TemplateStyle --> ParagraphStyle : paragraph
+    TemplateStyle --> BlockquoteStyle : blockquote
+    TemplateStyle --> CodeBlockStyle : codeBlock
+    TemplateStyle --> InlineCodeStyle : inlineCode
+    TemplateStyle --> ListStyle : list
+    TemplateStyle --> DividerStyle : divider
+    TemplateStyle --> ImageStyle : image
+    TemplateStyle --> LinkStyle : link
+    TemplateStyle --> RootStyle : root
+
+    %% ====== API 配置 ======
+    class WxApiConfig {
+        +string id
+        +string name
+        +string appId
+        +string appSecret
+        +number createdAt
+        +number updatedAt
+    }
+
+    class ConfigManager {
+        -WxApiConfig[] configs
+        -string activeConfigId
+        +loadConfigs() WxApiConfig[]
+        +saveConfigs(configs: WxApiConfig[]) void
+        +getActiveConfig() WxApiConfig | null
+        +setActiveConfig(id: string) void
+        +addConfig(config: WxApiConfig) void
+        +removeConfig(id: string) void
+        +updateConfig(id: string, data: Partial~WxApiConfig~) void
+    }
+
+    ConfigManager --> WxApiConfig : manages
+
+    %% ====== 排版引擎 ======
+    class FormatEngine {
+        -TemplateConfig currentTemplate
+        +setTemplate(template: TemplateConfig) void
+        +format(markdown: string) string
+        +getHtml() string
+    }
+
+    class StyleMapper {
+        +mapToInline(style: TemplateStyle, token: Token) string
+        +headingStyle(style: HeadingStyle, level: number) string
+        +paragraphStyle(style: ParagraphStyle) string
+        +blockquoteStyle(style: BlockquoteStyle) string
+        +codeBlockStyle(style: CodeBlockStyle) string
+        +inlineCodeStyle(style: InlineCodeStyle) string
+        +listStyle(style: ListStyle) string
+        +dividerStyle(style: DividerStyle) string
+        +imageStyle(style: ImageStyle) string
+        +linkStyle(style: LinkStyle) string
+    }
+
+    class CustomRenderer {
+        -StyleMapper styleMapper
+        +heading(text: string, level: number) string
+        +paragraph(text: string) string
+        +blockquote(quote: string) string
+        +code(code: string, lang: string) string
+        +codespan(text: string) string
+        +list(body: string, ordered: boolean) string
+        +hr() string
+        +image(href: string, title: string, text: string) string
+        +link(href: string, title: string, text: string) string
+        +strong(text: string) string
+        +em(text: string) string
+    }
+
+    FormatEngine --> TemplateConfig : uses
+    FormatEngine --> CustomRenderer : uses
+    CustomRenderer --> StyleMapper : uses
+    StyleMapper --> TemplateStyle : reads
+
+    %% ====== 全局状态 ======
+    class AppState {
+        +string markdown
+        +string formattedHtml
+        +string selectedTemplateId
+        +WxApiConfig[] apiConfigs
+        +string activeConfigId
+        +boolean isPushing
+        +string errorMessage
+        +boolean isConfigDialogOpen
+        +boolean isPushDialogOpen
+    }
+
+    class AppAction {
+        <<union>>
+        +SET_MARKDOWN
+        +SET_TEMPLATE
+        +SET_FORMATTED_HTML
+        +SET_API_CONFIGS
+        +SET_ACTIVE_CONFIG
+        +SET_PUSHING
+        +SET_ERROR
+        +TOGGLE_CONFIG_DIALOG
+        +TOGGLE_PUSH_DIALOG
+    }
+
+    AppState --> WxApiConfig : apiConfigs
+
+    %% ====== 推送请求 ======
+    class PushRequest {
+        +string title
+        +string content
+        +string digest
+        +string thumbMediaId
+        +string appId
+        +string appSecret
+    }
+
+    class PushResponse {
+        +number code
+        +string message
+        +string mediaId
+    }
+
+    PushResponse --> PushRequest : responds to
+
+    %% ====== 服务层 ======
+    class WxApiService {
+        +pushToDraft(req: PushRequest) Promise~PushResponse~
+        +testConnection(appId: string, appSecret: string) Promise~boolean~
+        +uploadImage(appId: string, appSecret: string, file: File) Promise~string~
+    }
+
+    WxApiService --> PushRequest : uses
+    WxApiService --> PushResponse : returns
+
+    %% ====== 加密工具 ======
+    class CryptoUtil {
+        +encrypt(plainText: string, password: string) Promise~string~
+        +decrypt(cipherText: string, password: string) Promise~string~
+    }
+
+    class StorageUtil {
+        +get(key: string) string | null
+        +set(key: string, value: string) void
+        +remove(key: string) void
+    }
+
+    class ClipboardUtil {
+        +copyHtml(html: string) Promise~boolean~
+        +copyText(text: string) Promise~boolean~
+    }

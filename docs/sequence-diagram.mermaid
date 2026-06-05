@@ -1,0 +1,134 @@
+%% ====== 4.1 核心排版流程 ======
+sequenceDiagram
+    actor User
+    participant Editor as Editor 组件
+    participant Store as AppContext
+    participant Engine as FormatEngine
+    participant Renderer as CustomRenderer
+    participant Mapper as StyleMapper
+    participant Preview as Preview 组件
+
+    User->>Editor: 输入 Markdown 文本
+    Editor->>Store: dispatch SET_MARKDOWN
+    Note over Editor,Store: 300ms 防抖
+
+    Store->>Engine: format(markdown)
+    Engine->>Renderer: marked.parse(markdown, {renderer})
+    
+    Renderer->>Mapper: headingStyle(style, level)
+    Mapper-->>Renderer: "font-size:24px;color:#333;..."
+    
+    Renderer->>Mapper: paragraphStyle(style)
+    Mapper-->>Renderer: "font-size:16px;line-height:1.75;..."
+    
+    Renderer->>Mapper: blockquoteStyle(style)
+    Mapper-->>Renderer: "border-left:4px solid #ddd;..."
+    
+    Note over Renderer: 对每个 token 类型调用<br/>对应的 styleMapper 方法<br/>生成内联样式 HTML
+
+    Renderer-->>Engine: formattedHtml (内联样式)
+    Engine-->>Store: dispatch SET_FORMATTED_HTML
+    Store-->>Preview: re-render with formattedHtml
+    Preview-->>User: 显示排版效果
+
+---
+
+%% ====== 4.2 模板切换流程 ======
+sequenceDiagram
+    actor User
+    participant Selector as TemplateSelector
+    participant Store as AppContext
+    participant Engine as FormatEngine
+    participant Preview as Preview
+
+    User->>Selector: 选择新模板（如"商务蓝"）
+    Selector->>Store: dispatch SET_TEMPLATE("business-blue")
+    Store->>Engine: setTemplate(businessBlueTemplate)
+    Store->>Engine: format(currentMarkdown)
+    Engine-->>Store: dispatch SET_FORMATTED_HTML
+    Store-->>Preview: re-render
+    Preview-->>User: 预览区实时更新为新模板样式
+
+---
+
+%% ====== 4.3 推送到草稿箱流程 ======
+sequenceDiagram
+    actor User
+    participant TopBar as TopBar
+    participant PushDlg as PushDialog
+    participant Store as AppContext
+    participant Service as WxApiService
+    participant API as Vercel Serverless
+    participant WeChat as 微信 API
+
+    User->>TopBar: 点击「推送到草稿箱」
+    TopBar->>Store: dispatch TOGGLE_PUSH_DIALOG
+    Store-->>PushDlg: 打开弹窗
+
+    User->>PushDlg: 填写标题/摘要，选择账号
+    PushDlg->>Store: 检查 activeConfig
+    
+    alt 未配置 API
+        PushDlg->>Store: dispatch TOGGLE_CONFIG_DIALOG
+        Note over User: 引导用户先配置 API
+    end
+
+    PushDlg->>Service: pushToDraft(request)
+    Service->>API: POST /api/draft {appId, appSecret, title, content, digest, thumbMediaId}
+    
+    API->>WeChat: GET token?appid=xxx&secret=xxx&grant_type=client_credential
+    WeChat-->>API: {access_token: "xxx"}
+    
+    API->>WeChat: POST draft/add?access_token=xxx {articles: [...]}
+    WeChat-->>API: {media_id: "xxx"}
+    
+    API-->>Service: {code: 0, data: {mediaId: "xxx"}}
+    Service-->>PushDlg: PushResponse
+    PushDlg->>Store: dispatch SET_PUSHING(false)
+    PushDlg-->>User: 推送成功提示 ✅
+
+---
+
+%% ====== 4.4 API 配置管理流程 ======
+sequenceDiagram
+    actor User
+    participant ConfigDlg as ConfigDialog
+    participant CfgMgr as ConfigManager
+    participant Crypto as CryptoUtil
+    participant Storage as StorageUtil
+
+    User->>ConfigDlg: 填写 AppID + AppSecret
+    User->>ConfigDlg: 点击「保存」
+
+    ConfigDlg->>CfgMgr: addConfig({appId, appSecret, name})
+    CfgMgr->>Crypto: encrypt(JSON.stringify(config), password)
+    Crypto-->>CfgMgr: encryptedString
+    CfgMgr->>Storage: set("wx_api_configs", encryptedString)
+    
+    User->>ConfigDlg: 点击「测试连接」
+    ConfigDlg->>CfgMgr: getActiveConfig()
+    CfgMgr->>Storage: get("wx_api_configs")
+    Storage-->>CfgMgr: encryptedString
+    CfgMgr->>Crypto: decrypt(encryptedString, password)
+    Crypto-->>CfgMgr: JSON string
+    CfgMgr-->>ConfigDlg: WxApiConfig
+    
+    ConfigDlg->>Serverless: GET /api/check?appId=xxx&appSecret=xxx
+    Serverless-->>ConfigDlg: {valid: true, tokenExpiresIn: 7200}
+    ConfigDlg-->>User: 连接成功 ✅
+
+---
+
+%% ====== 4.5 一键复制 HTML 流程 ======
+sequenceDiagram
+    actor User
+    participant CopyBtn as CopyButton
+    participant Clipboard as ClipboardUtil
+    participant Store as AppContext
+
+    User->>CopyBtn: 点击「复制 HTML」
+    CopyBtn->>Store: 获取 formattedHtml
+    CopyBtn->>Clipboard: copyHtml(formattedHtml)
+    Clipboard->>Clipboard: navigator.clipboard.write([new ClipboardItem({'text/html': html})])
+    Clipboard-->>CopyBtn: true
+    CopyBtn-->>User: 复制成功提示 ✅
